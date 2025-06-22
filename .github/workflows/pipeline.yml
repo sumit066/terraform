@@ -9,7 +9,7 @@ on:
 
 jobs:
   terraform:
-    uses: ./.github/workflows/template.yml
+    uses: ./github/workflows/template.yml
     with:
       path: 'module-call/'
       terraform_destroy: false
