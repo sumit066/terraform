@@ -3,8 +3,8 @@ name: Create new release and tag on push events to main
 on:
   push:
     branches:
-      - main  # The workflow runs only on the 'main' branch
+      - main  
 
 jobs:
   validate:
-    uses: .github/workflows/create-release-child.yml@main 
+    uses: ./.github/workflows/create-release-child.yml
