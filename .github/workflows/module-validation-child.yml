@@ -1,0 +1,96 @@
+name: Terraform Module Validation Workflow
+# This workflow runs terraform module validation commands like avmfix and terraform-docs.
+
+on:
+  workflow_call:  # Allows this workflow to be called by other workflows
+    inputs:
+      skip_cache_restore:
+        description: 'Flag to skip cache restore'
+        required: false
+        default: 'no'
+        type: string
+
+jobs:
+  validating-terraform-modules:
+    runs-on: ubuntu-latest
+
+    env:
+      SKIP_CACHE_RESTORE: ${{ inputs.skip_cache_restore }}
+
+    steps:
+      - name: Checkout Pull request
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.ref }}
+
+      - name: Get latest Go version
+        run: |
+          latest_go_version=$(curl -s https://go.dev/VERSION?m=text | head -n 1 | sed 's/go//')
+          echo "go-version=$latest_go_version" >> $GITHUB_ENV
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: ${{ env.go-version }}
+
+      - name: Capture avmfix version
+        run: |
+          avmfix_version=$(go list -m -json github.com/lonegunmanb/avmfix@latest | jq -r .Version)
+          echo "Captured avmfix version: $avmfix_version"
+          echo "avmfix_version=$avmfix_version" >> $GITHUB_ENV
+
+      - name: Capture terraform-docs version
+        run: |
+          terraform_docs_version=$(go list -m -versions github.com/terraform-docs/terraform-docs | awk '{print $NF}')
+          echo "Captured terraform-docs version: $terraform_docs_version"
+          echo "terraform_docs_version=$terraform_docs_version" >> $GITHUB_ENV
+
+      - name: Conditional Cache Restore
+        if: env.SKIP_CACHE_RESTORE != 'yes'
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/go/pkg/mod
+            ~/go/bin
+          key: ${{ runner.os }}-gotools-terraform-docs-${{ env.terraform_docs_version }}-avmfix-${{ env.avmfix_version }}
+          restore-keys: |
+            ${{ runner.os }}-gotools-terraform-docs-${{ env.terraform_docs_version }}-avmfix-
+
+      - name: Install avmfix
+        run: |
+          if [ ! -d ~/go/pkg/mod/github.com/lonegunmanb/avmfix@${{ env.avmfix_version }} ]; then
+            echo "Installing avmfix version ${{ env.avmfix_version }}..."
+            go install github.com/lonegunmanb/avmfix@${{ env.avmfix_version }}
+          else
+            echo "avmfix version ${{ env.avmfix_version }} is already cached and available."
+          fi
+
+      - name: Install terraform-docs
+        run: |
+          if [ ! -f ~/go/bin/terraform-docs ]; then
+            echo "Installing terraform-docs..."
+            go install github.com/terraform-docs/terraform-docs@${{ env.terraform_docs_version }}
+          fi
+
+      - name: Move tools to system PATH
+        run: |
+          sudo cp ~/go/bin/avmfix /usr/local/bin/
+          sudo cp ~/go/bin/terraform-docs /usr/local/bin/
+
+      - name: Run avmfix
+        run: avmfix -folder .
+
+      - name: Run terraform-docs
+        run: terraform-docs -c .terraform-docs.yml .
+
+      - name: Check for changes and commit
+        run: |
+          if [ -n "$(git status --porcelain)" ]; then
+            git config --global user.name "github-actions[bot]"
+            git config --global user.email "github-actions[bot]@users.noreply.github.com"
+            git add .
+            git commit -m "Auto-commit: Fixes after running the validation Github workflow"
+            git push origin HEAD:${{ github.event.pull_request.head.ref }}
+          else
+            echo "No changes detected. Pipeline succeeded."
+          fi  # <-- Add this line to close the if block properly.

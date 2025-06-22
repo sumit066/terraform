@@ -1,0 +1,13 @@
+name: Terraform Module Validation Workflow
+
+on:
+  pull_request:
+    types: [opened, reopened, synchronize]
+    branches:
+      - main
+
+jobs:
+  validate:
+    uses: ./.github/workflows/module-validation-child.yml 
+    with:
+      skip_cache_restore: 'no'
