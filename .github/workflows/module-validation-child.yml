@@ -81,8 +81,8 @@ jobs:
         run: avmfix -folder .
 
       - name: Run terraform-docs
-        run: terraform-docs -c terraform-azurerm-res-windows-function-app/.terraform-docs.yml .
-        working-directory: terraform-azurerm-res-windows-function-app
+        run: terraform-docs -c .terraform-docs.yml .
+        working-directory: terraform-azurerm-res-windows-function-app  # Correct working directory
 
       - name: Check for changes and commit
         run: |
