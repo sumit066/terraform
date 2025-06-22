@@ -1,0 +1,82 @@
+name: Create new release and tag on push events to main
+# This workflow creates or increases the release tag on pushed to main in the repo based on the commit message ( [major][minor] or [patch] )
+
+on:
+  workflow_call:  # Allows this workflow to be called by other workflows
+
+jobs:
+  release_tagging:
+    name: Create a new release
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout the repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # Fetch the full Git history, including all tags
+
+      - name: Get the latest tag
+        run: |
+          # Use git describe to get the most recent tag and commit info
+          TAG=$(git describe --tags --abbrev=0 2>/dev/null || echo "none")
+          if [ "$TAG" == "none" ]; then
+            echo "No tags found yet."
+            TAG="1.0.0"  # Assign the initial tag value
+          fi
+          echo "Latest tag: $TAG"
+          echo "LATEST_TAG=$TAG" >> $GITHUB_ENV  # Set as environment variable
+
+      - name: Extract version bump from the commit message
+        run: |
+          # Get the commit message of the latest commit
+          COMMIT_MESSAGE=$(git log -1 --pretty=%B)
+          echo "Commit message: $COMMIT_MESSAGE"
+
+          # Check if the commit message contains [minor], [major], [patch], or [bugfix]
+          if echo "$COMMIT_MESSAGE" | grep -q "\\[minor\\]"; then
+            echo "Minor version bump detected"
+            VERSION_BUMP="minor"
+          elif echo "$COMMIT_MESSAGE" | grep -q "\\[major\\]"; then
+            echo "Major version bump detected"
+            VERSION_BUMP="major"
+          elif echo "$COMMIT_MESSAGE" | grep -q "\\[patch\\]"; then
+            echo "Patch version bump detected"
+            VERSION_BUMP="patch"
+          elif echo "$COMMIT_MESSAGE" | grep -q "\\[bugfix\\]"; then
+            echo "Patch version bump detected (bugfix)"
+            VERSION_BUMP="patch"
+          else
+            echo "No version bump detected in commit message. Should be [major][minor][patch] --> Exiting gracefully."
+            VERSION_BUMP="no-bump"
+          fi
+
+          # Output the detected version bump and set it as environment variable
+          echo "Detected version bump: $VERSION_BUMP"
+          echo "VERSION_BUMP=$VERSION_BUMP" >> $GITHUB_ENV  # Set as environment variable
+
+      - name: Calculate the new version
+        if: env.VERSION_BUMP != 'no-bump'  # Only run if a version bump is detected
+        run: |
+          LATEST_TAG=${{ env.LATEST_TAG }}
+          VERSION_BUMP=${{ env.VERSION_BUMP }}
+      
+          # If no tag was present and it's the first version (1.0.0), don't bump the version on the first commit
+          if [ "$LATEST_TAG" == "1.0.0" ] && [ "$(git describe --tags --abbrev=0 2>/dev/null)" == "" ]; then
+            echo "Initial tag 1.0.0 set, no version bump needed for the first commit."
+            NEW_VERSION="1.0.0"
+          else
+            # Calculate the new version with semver
+            NEW_VERSION=$(npx semver $LATEST_TAG --increment $VERSION_BUMP)
+          fi
+      
+          echo "New version: $NEW_VERSION"
+          echo "NEW_VERSION=$NEW_VERSION" >> $GITHUB_ENV  # Set as environment variable
+
+      - name: Create a new GitHub Release using GitHub CLI
+        if: env.VERSION_BUMP != 'no-bump'  # Only run if a version bump is detected
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh release create "v${{ env.NEW_VERSION }}" \
+            --title "v${{ env.NEW_VERSION }}" \
+            --generate-notes
