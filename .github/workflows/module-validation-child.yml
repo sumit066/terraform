@@ -84,14 +84,25 @@ jobs:
         run: terraform-docs -c .terraform-docs.yml .
         working-directory: terraform-azurerm-res-windows-function-app  
 
+      # - name: Check for changes and commit
+      #   run: |
+      #     if [ -n "$(git status --porcelain)" ]; then
+      #       git config --global user.name "github-actions[bot]"
+      #       git config --global user.email "github-actions[bot]@users.noreply.github.com"
+      #       git add .
+      #       git commit -m "Auto-commit: Fixes after running the validation Github workflow"
+      #       git push origin HEAD:${{ github.event.pull_request.head.ref }}
+      #     else
+      #       echo "No changes detected. Pipeline succeeded."
+      #     fi  # <-- Add this line to close the if block properly.
       - name: Check for changes and commit
         run: |
           if [ -n "$(git status --porcelain)" ]; then
             git config --global user.name "github-actions[bot]"
             git config --global user.email "github-actions[bot]@users.noreply.github.com"
             git add .
-            git commit -m "Auto-commit: Fixes after running the validation Github workflow"
-            git push origin HEAD:${{ github.event.pull_request.head.ref }}
+            git commit -m "Auto-commit: Fixes after running the validation GitHub workflow"
+            git push https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }} HEAD:${{ github.event.pull_request.head.ref }}
           else
             echo "No changes detected. Pipeline succeeded."
-          fi  # <-- Add this line to close the if block properly.
+          fi
