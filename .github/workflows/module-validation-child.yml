@@ -2,7 +2,7 @@ name: Terraform Module Validation Workflow
 # This workflow runs terraform module validation commands like avmfix and terraform-docs.
 
 on:
-  workflow_call:  # Allows this workflow to be called by other workflows
+  workflow_call: 
     inputs:
       skip_cache_restore:
         description: 'Flag to skip cache restore'
@@ -11,7 +11,7 @@ on:
         type: string
 
 permissions:
-      contents: write  # Required for committing changes
+      contents: write 
       actions: read
       
 jobs:
