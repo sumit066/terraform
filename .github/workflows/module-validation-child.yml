@@ -2,7 +2,7 @@ name: Terraform Module Validation Workflow
 # This workflow runs terraform module validation commands like avmfix and terraform-docs.
 
 on:
-  workflow_call: 
+  workflow_call:  # Allows this workflow to be called by other workflows
     inputs:
       skip_cache_restore:
         description: 'Flag to skip cache restore'
@@ -10,17 +10,12 @@ on:
         default: 'no'
         type: string
 
-permissions:
-      contents: write 
-      actions: read
-      
 jobs:
   validating-terraform-modules:
     runs-on: ubuntu-latest
 
     env:
       SKIP_CACHE_RESTORE: ${{ inputs.skip_cache_restore }}
-    
 
     steps:
       - name: Checkout Pull request
@@ -87,7 +82,7 @@ jobs:
 
       - name: Run terraform-docs
         run: terraform-docs -c .terraform-docs.yml .
-        working-directory: terraform-azurerm-res-windows-function-app  # Correct working directory
+        working-directory: terraform-azurerm-res-windows-function-app  
 
       - name: Check for changes and commit
         run: |
