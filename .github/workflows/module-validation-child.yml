@@ -10,12 +10,17 @@ on:
         default: 'no'
         type: string
 
+permissions:
+      contents: write  # Required for committing changes
+      actions: read
+      
 jobs:
   validating-terraform-modules:
     runs-on: ubuntu-latest
 
     env:
       SKIP_CACHE_RESTORE: ${{ inputs.skip_cache_restore }}
+    
 
     steps:
       - name: Checkout Pull request
