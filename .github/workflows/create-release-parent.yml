@@ -7,4 +7,4 @@ on:
 
 jobs:
   validate:
-    uses: ./.github/workflows/create-release-child.yml@main 
+    uses: ./.github/workflows/create-release-child.yml
