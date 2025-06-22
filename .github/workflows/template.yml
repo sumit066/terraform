@@ -1,0 +1,75 @@
+name: Terraform Plan
+
+on:
+  workflow_dispatch:
+    inputs:
+      path:
+        description: 'Path to Terraform configuration'
+        required: true
+        default: 'infrastructure'
+      terraform_destroy:
+        description: 'Run terraform plan -destroy'
+        required: true
+        default: 'false'
+
+jobs:
+  terraform-plan:
+    name: Terraform Plan
+    runs-on: ubuntu-latest
+    environment: dev
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Validate Module Version
+        run: |
+          chmod +x ./scripts/validate_module_version.sh
+          ./scripts/validate_module_version.sh ${{ github.event.inputs.path }}
+
+      - name: Install latest Terraform
+        run: |
+          set -euo pipefail
+
+          echo "🔍 Installing jq..."
+          sudo apt-get update && sudo apt-get install -y jq
+
+          echo "⬇️ Fetching latest Terraform version..."
+          TERRAFORM_VERSION=$(curl -s https://checkpoint-api.hashicorp.com/v1/check/terraform | jq -r .current_version)
+
+          echo "📦 Installing Terraform $TERRAFORM_VERSION..."
+          curl -s -L -o terraform.zip "https://releases.hashicorp.com/terraform/${TERRAFORM_VERSION}/terraform_${TERRAFORM_VERSION}_linux_amd64.zip"
+          unzip -o terraform.zip
+          sudo mv terraform /usr/local/bin/terraform
+          rm -f terraform.zip
+
+          terraform version
+
+      - name: Azure Login using OIDC
+        uses: azure/login@v1
+        with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+
+      - name: Terraform Init and Plan
+        working-directory: ${{ github.event.inputs.path }}
+        env:
+          ARM_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
+          ARM_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
+          ARM_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+          ARM_USE_OIDC: true
+        run: |
+          terraform init
+
+          if [[ "${{ github.event.inputs.terraform_destroy }}" == "true" ]]; then
+            terraform plan -destroy -out=tfplandestroy
+          else
+            terraform plan -out=tfplan
+          fi
+
+      - name: Upload Plan Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ github.event.inputs.terraform_destroy == 'true' && 'tfplandestroy' || 'tfplan' }}
+          path: ${{ github.event.inputs.path }}
