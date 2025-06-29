@@ -12,6 +12,17 @@ on:
       - main
     paths:
       - 'modules-call/**'
+ 
+  workflow_dispatch:
+    inputs:
+      path:
+        description: 'Path to Terraform configuration'
+        required: true
+        default: 'modules-call/'
+      terraform_destroy:
+        description: 'Run terraform plan -destroy'
+        required: true
+        default: 'false'
 
 jobs:
   terraform:
