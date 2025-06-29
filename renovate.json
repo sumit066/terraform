@@ -12,7 +12,7 @@
       "managers": ["terraform"],
       "groupName": "All Terraform Updates",
       "labels": ["terraform"],
-      "updateTypes": ["major", "minor", "patch"]
+      "updateTypes": ["minor", "patch"]
     }
   ],
   "vulnerabilityAlerts": {
