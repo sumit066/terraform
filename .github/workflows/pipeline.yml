@@ -5,13 +5,13 @@ on:
     branches:
       - main
     paths:
-      - 'module-call/'
+      - 'modules-call/'
 
 jobs:
   terraform:
     uses: ./.github/workflows/template.yml
     with:
-      path: 'module-call/'
+      path: 'modules-call/'
       terraform_destroy: false
     # secrets:
     #   AZURE_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
