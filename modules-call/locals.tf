@@ -3,7 +3,7 @@ locals {
   # environment            = "development"
 
   tags = {
-    billing_id = "123456"
+    billing_id = "12345"
   }
 
   global_settings = merge({ customer_name = "Contoso", customer_short_name = "cnts" }, {
