@@ -11,12 +11,13 @@
     {
       "managers": ["terraform"],
       "groupName": "All Terraform Updates",
-      "labels": ["terraform"]
+      "labels": ["terraform"],
+      "updateTypes": ["major", "minor", "patch"]
     }
   ],
   "vulnerabilityAlerts": {
     "labels": [
       "security"
-    ],
+    ]
   }
 }
