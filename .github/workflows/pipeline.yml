@@ -28,7 +28,7 @@ jobs:
   terraform:
     uses: ./.github/workflows/template.yml
     with:
-      path: 'modules-call/'
+      path: 'modules-call'
       terraform_destroy: false
     # secrets:
     #   AZURE_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
