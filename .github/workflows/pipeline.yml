@@ -5,7 +5,13 @@ on:
     branches:
       - main
     paths:
-      - 'modules-call/'
+      - 'modules-call/**'
+
+  pull_request:
+    branches:
+      - main
+    paths:
+      - 'modules-call/**'
 
 jobs:
   terraform:
