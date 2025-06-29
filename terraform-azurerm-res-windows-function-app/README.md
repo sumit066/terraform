@@ -701,31 +701,7 @@ object({
 
 Default: `null`
 
-### <a name="input_storage_account_access_key"></a> [storage\_account\_access\_key](#input\_storage\_account\_access\_key)
-
-Description: Primary access key for the content storage account (if not using managed identity).
-
-Type: `string`
-
-Default: `null`
-
-### <a name="input_storage_account_name"></a> [storage\_account\_name](#input\_storage\_account\_name)
-
-Description: The backend storage account name which will be used by this Function App.
-
-Type: `string`
-
-Default: `null`
-
-### <a name="input_storage_key_vault_secret_id"></a> [storage\_key\_vault\_secret\_id](#input\_storage\_key\_vault\_secret\_id)
-
-Description: The Key Vault Secret ID, optionally including version, that contains the Connection String to connect to the storage account for this Function App.
-
-Type: `string`
-
-Default: `null`
-
-### <a name="input_storage_mounts"></a> [storage\_mounts](#input\_storage\_mounts)
+### <a name="input_storage_account"></a> [storage\_account](#input\_storage\_account)
 
 Description: (Optional) File-share mounts made available to the runtime.
 - `name`         - Name of the mount.
@@ -749,6 +725,30 @@ list(object({
 ```
 
 Default: `[]`
+
+### <a name="input_storage_account_access_key"></a> [storage\_account\_access\_key](#input\_storage\_account\_access\_key)
+
+Description: Primary access key for the content storage account (if not using managed identity).
+
+Type: `string`
+
+Default: `null`
+
+### <a name="input_storage_account_name"></a> [storage\_account\_name](#input\_storage\_account\_name)
+
+Description: The backend storage account name which will be used by this Function App.
+
+Type: `string`
+
+Default: `null`
+
+### <a name="input_storage_key_vault_secret_id"></a> [storage\_key\_vault\_secret\_id](#input\_storage\_key\_vault\_secret\_id)
+
+Description: The Key Vault Secret ID, optionally including version, that contains the Connection String to connect to the storage account for this Function App.
+
+Type: `string`
+
+Default: `null`
 
 ### <a name="input_storage_uses_managed_identity"></a> [storage\_uses\_managed\_identity](#input\_storage\_uses\_managed\_identity)
 
