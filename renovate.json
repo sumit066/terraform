@@ -1,0 +1,22 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": [
+    "config:recommended"
+  ],
+  "labels": [
+    "renovate",
+    "generated"
+  ],
+  "packageRules": [
+    {
+      "managers": ["terraform"],
+      "groupName": "All Terraform Updates",
+      "labels": ["terraform"]
+    }
+  ],
+  "vulnerabilityAlerts": {
+    "labels": [
+      "security"
+    ],
+  }
+}
