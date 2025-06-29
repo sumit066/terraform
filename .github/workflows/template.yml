@@ -1,15 +1,28 @@
-name: Terraform Plan
+name: Terraform Plan Template
 
 on:
-  workflow_dispatch:
+  # workflow_dispatch:
+  #   inputs:
+  #     path:
+  #       description: 'Path to Terraform configuration'
+  #       required: true
+  #       default: 'infrastructure'
+  #     terraform_destroy:
+  #       description: 'Run terraform plan -destroy'
+  #       required: true
+  #       default: 'false'
+
+   workflow_call:   
     inputs:
       path:
         description: 'Path to Terraform configuration'
         required: true
-        default: 'infrastructure'
+        type: string
+        default: 'modules-call'
       terraform_destroy:
         description: 'Run terraform plan -destroy'
         required: true
+        type: string
         default: 'false'
 
 jobs:
