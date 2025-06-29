@@ -9,10 +9,17 @@
   ],
   "packageRules": [
     {
-      "managers": ["terraform"],
+      "matchManagers": [
+        "terraform"
+      ],
       "groupName": "All Terraform Updates",
-      "labels": ["terraform"],
-      "updateTypes": ["minor", "patch"]
+      "labels": [
+        "terraform"
+      ],
+      "matchUpdateTypes": [
+        "minor",
+        "patch"
+      ]
     }
   ],
   "vulnerabilityAlerts": {
