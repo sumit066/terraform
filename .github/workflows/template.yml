@@ -1,18 +1,7 @@
 name: Terraform Plan Template
 
 on:
-  # workflow_dispatch:
-  #   inputs:
-  #     path:
-  #       description: 'Path to Terraform configuration'
-  #       required: true
-  #       default: 'infrastructure'
-  #     terraform_destroy:
-  #       description: 'Run terraform plan -destroy'
-  #       required: true
-  #       default: 'false'
-
-   workflow_call:   
+  workflow_call:   
     inputs:
       path:
         description: 'Path to Terraform configuration'
@@ -42,7 +31,7 @@ jobs:
       - name: Validate Module Version
         run: |
           chmod +x ./scripts/validate_module_version.sh
-          ./scripts/validate_module_version.sh ${{ github.event.inputs.path }}
+          ./scripts/validate_module_version.sh ${{ inputs.path }}
 
       - name: Install latest Terraform
         run: |
@@ -75,11 +64,11 @@ jobs:
           az login 
 
       - name: Terraform Init and Plan
-        working-directory: ${{ github.event.inputs.path }}
+        working-directory: ${{ inputs.path }}
         run: |
           terraform init
 
-          if [[ "${{ github.event.inputs.terraform_destroy }}" == "true" ]]; then
+          if [[ "${{ inputs.terraform_destroy }}" == "true" ]]; then
             terraform plan -destroy -out=tfplandestroy
           else
             terraform plan -out=tfplan
@@ -88,5 +77,5 @@ jobs:
       - name: Upload Plan Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: ${{ github.event.inputs.terraform_destroy == 'true' && 'tfplandestroy' || 'tfplan' }}
-          path: ${{ github.event.inputs.path }}
+          name: ${{ inputs.terraform_destroy == 'true' && 'tfplandestroy' || 'tfplan' }}
+          path: ${{ inputs.path }}
