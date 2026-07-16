@@ -29,7 +29,7 @@ jobs:
           echo "go-version=$latest_go_version" >> $GITHUB_ENV
 
       - name: Set up Go
-        uses: actions/setup-go@v5
+        uses: actions/setup-go@v7
         with:
           go-version: ${{ env.go-version }}
 
